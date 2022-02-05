@@ -2,27 +2,36 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"time"
 
 	"github.com/slib53/sleep-sort-go-example/internal/sleepsort"
 )
 
-func main() {
-	randomGenerator := rand.New(rand.NewSource(time.Now().UnixNano()))
+var randomGenerator = rand.New(rand.NewSource(time.Now().UnixNano()))
 
-	nums := make([]uint8, 8)
+// makeOriginal generates the original array to be sorted.
+func makeOriginal() []uint8 {
+	nums := make([]uint8, 5)
+
 	for i := range nums {
-		nums[i] = uint8(randomGenerator.Intn(256))
+		nums[i] = uint8(randomGenerator.Intn(math.MaxUint8 + 1))
 	}
 
-	sortedNums, ok := sleepsort.Sort(nums)
+	return nums
+}
+
+func main() {
+	original := makeOriginal()
+
+	sorted, ok := sleepsort.Sort(original)
 
 	if !ok {
-		fmt.Println("uh-oh... sleep sort failed for the following input: ", nums)
+		fmt.Println("uh-oh... sleep sort failed for the following input: ", original)
 		return
 	}
 
-	fmt.Println("original:", nums)
-	fmt.Println("  sorted:", sortedNums)
+	fmt.Println("original:", original)
+	fmt.Println("  sorted:", sorted)
 }
