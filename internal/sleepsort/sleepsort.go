@@ -5,18 +5,22 @@ import (
 	"time"
 )
 
+func assignDuration(num uint8) time.Duration {
+	return time.Duration(num) * time.Millisecond
+}
+
 func sleepThenBuffer(buffer chan uint8, buffering *sync.WaitGroup, num uint8) {
-	time.Sleep(time.Duration(num) * time.Millisecond)
+	defer buffering.Done()
+
+	time.Sleep(assignDuration(num))
 
 	buffer <- num
-
-	buffering.Done()
 }
 
 func formatBuffer(buffer chan uint8) ([]uint8, bool) {
 	formatted := make([]uint8, len(buffer))
 
-	for i := 0; i < len(formatted); i++ {
+	for i := range formatted {
 		s, ok := <-buffer
 		if !ok {
 			return formatted, false
