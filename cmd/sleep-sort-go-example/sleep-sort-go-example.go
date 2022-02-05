@@ -3,48 +3,10 @@ package main
 import (
 	"fmt"
 	"math/rand"
-	"sync"
 	"time"
+
+	"github.com/slib53/sleep-sort-go-example/internal/sleepsort"
 )
-
-func sleepThenRecieve(buffer chan uint8, buffering *sync.WaitGroup, num uint8) {
-	time.Sleep(time.Duration(num) * time.Millisecond)
-
-	buffer <- num
-
-	buffering.Done()
-}
-
-func formatBuffer(buffer chan uint8) ([]uint8, bool) {
-	formatted := make([]uint8, len(buffer))
-
-	for i := 0; i < len(formatted); i++ {
-		s, ok := <-buffer
-		if !ok {
-			return formatted, false
-		}
-
-		formatted[i] = s
-	}
-
-	return formatted, true
-}
-
-func sleepSort(nums []uint8) ([]uint8, bool) {
-	sortBuffer := make(chan uint8, len(nums))
-	defer close(sortBuffer)
-
-	var sorting sync.WaitGroup
-	sorting.Add(len(nums))
-
-	for _, n := range nums {
-		go sleepThenRecieve(sortBuffer, &sorting, n)
-	}
-
-	sorting.Wait()
-
-	return formatBuffer(sortBuffer)
-}
 
 func main() {
 	randomGenerator := rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -54,7 +16,7 @@ func main() {
 		nums[i] = uint8(randomGenerator.Intn(256))
 	}
 
-	sortedNums, ok := sleepSort(nums)
+	sortedNums, ok := sleepsort.Sort(nums)
 
 	if !ok {
 		fmt.Println("uh-oh... sleep sort failed for the following input: ", nums)
